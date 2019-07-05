@@ -176,8 +176,8 @@ td.addRule('image', {
 
     if (/^https:\/\/cdn-images.*\.medium\.com/.test(src)) {
       const cdnURL = src
-      const filename = `asset-${imageDownloader.length + 1}${path.extname(src)}`
-      src = `./${filename}`
+      const filename = path.basename(src)
+      src = `/img/${filename}`
       imageDownloader.push(
         request(cdnURL, { encoding: null })
           .then(body => ({ body, filename }))
@@ -311,7 +311,8 @@ canonicalLink: ${metadata.canonicalLink}`
 
 `
 
-    await fs.mkdirp(withOutputPath(profile, `./content/${slug}`))
+    await fs.mkdirp(withOutputPath(profile, './static/img'))
+    await fs.mkdirp(withOutputPath(profile, './content/blog'))
 
     await Promise.all(
       imageDownloader
@@ -319,7 +320,7 @@ canonicalLink: ${metadata.canonicalLink}`
           p.then(({ body, filename }) => {
             if (body) {
               fs.writeFile(
-                withOutputPath(profile, `./content/${slug}/${filename}`),
+                withOutputPath(profile, `./static/img/${filename}`),
                 body
               )
             }
@@ -343,7 +344,7 @@ canonicalLink: ${metadata.canonicalLink}`
     )
 
     await fs.writeFile(
-      withOutputPath(profile, `./content/${slug}/index.md`),
+      withOutputPath(profile, `./content/blog/${slug}.md`),
       `${frontmatter}${md}\n`
     )
   } catch (err) {
